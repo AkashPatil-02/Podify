@@ -19,6 +19,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool summarize = true;
   bool isGenerating = false;
 
+  String? selectedValue = "thalia";
+
+  final List<String> items = ["thalia", "odysseus", "draco", "asteria"];
+
   Future<void> generatePodcast() async {
     Navigator.push(
       context,
@@ -27,16 +31,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final res = await http.post(
-        Uri.parse("http://10.217.38.192:8000/api/podcast"),
+        Uri.parse("http://10.115.136.39:8000/api/podcast"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "text": _contentController.text,
+          "model": selectedValue,
           "summarize": summarize,
         }),
       );
 
       final data = jsonDecode(res.body);
-      print(data['audio_url']);
+      print("audio url: " + data['audio_url']);
 
       await Future.delayed(Duration(milliseconds: 600));
 
@@ -44,7 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => PlaybackScreen(audioUrl: data['audio_url']),
+          builder: (_) => PlaybackScreen(
+            audioUrl: data['audio_url'],
+            transcript: data['transcript'],
+          ),
         ),
       );
     } catch (e) {
@@ -79,13 +87,51 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 16),
             SwitchListTile(
-              title: const Text("summarize before generating"),
+              title: const Text("summarize before generating ?"),
               value: summarize,
               onChanged: (v) => {
                 setState(() {
                   summarize = v;
                 }),
               },
+            ),
+            SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: SizedBox(
+                  width: 250,
+                  child: Row(
+                    children: [
+                      const Text(
+                        "Choose voice",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      Expanded(
+                        child: DropdownButtonFormField(
+                          value: selectedValue,
+                          items: items.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (String? newVal) {
+                            setState(() {
+                              selectedValue = newVal;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
             SizedBox(height: 16),
             ElevatedButton.icon(

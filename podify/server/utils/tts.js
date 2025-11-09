@@ -8,7 +8,7 @@ import { pipeline } from 'stream/promises';
 
 const key = process.env.deepgramApiKey;
 
-export const generateSpeech = async (text) => {
+export const generateSpeech = async (text,model) => {
   const outputFile = `podcast_${uuidv4()}.mp3`;
   const filePath = path.join("audio", outputFile);
   const deepgram = createClient(key);
@@ -16,7 +16,7 @@ export const generateSpeech = async (text) => {
   const response = await deepgram.speak.request(
     { text },
     {
-      model: 'aura-2-thalia-en',
+      model: 'aura-2-'+model+'-en',
     }
   );
 

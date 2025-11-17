@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:podify/screens/loading.dart';
 import 'package:podify/screens/playback.dart';
@@ -19,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
   bool summarize = true;
   bool isGenerating = false;
-
+  final ip = dotenv.env['ip'] ?? '0.0.0.0';
   String? selectedValue = "thalia";
 
   final List<String> items = ["thalia", "odysseus", "draco", "asteria"];
@@ -64,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final res = await http.post(
-        Uri.parse("http://10.115.136.39:8000/api/podcast"),
+        Uri.parse("http://$ip/api/podcast"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "text": _contentController.text.trim(),
@@ -75,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        print("audio url: " + data['audio_url']);
 
         await Future.delayed(const Duration(milliseconds: 600));
 
@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
         throw Exception("Server returned status code: ${res.statusCode}");
       }
     } catch (e) {
-      print(e);
+      //print(e);
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(

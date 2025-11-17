@@ -1,9 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import fs from "fs";
 import path from "path";
 import { extractText } from "../utils/extractText.js";
 import { summarizeText } from "../utils/summarize.js";
 import { generateSpeech } from "../utils/tts.js";
+
 
 const router = express.Router();
 const AUDIO_DIR = path.resolve("audio");
@@ -91,7 +94,7 @@ router.post("/", async (req, res) => {
     }
 
     const filename = path.basename(finalAudioPath);
-    const audioUrl = `http://10.115.136.39:8000/audio/${filename}`;
+    const audioUrl = `http://process.env.ip:8000/audio/${filename}`;
 
     res.json({
       status: "success",
